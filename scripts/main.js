@@ -57,6 +57,10 @@ utils.loadOpenCv(()=>{
     
     const FPS = 60;
     function processVideo() {
+        let filter_length = 5;
+        let last_eye_size = [0];
+        last_eye_size.length = filter_length;
+
         try {
             if (!streaming) {
                 // clean and stop.
@@ -87,7 +91,7 @@ utils.loadOpenCv(()=>{
 
                 //detect the eye inside the face box
                 let faceBox = gray.roi(new cv.Rect(window.Origin.x+face.x, window.Origin.y+face.y, face.width, face.height));
-                eyeClassifier.detectMultiScale(faceBox, eyes, 1.1, 2, 0);
+                eyeClassifier.detectMultiScale(faceBox, eyes, 1.1, 1, 0);
                 
                 for (let i = 0; i < eyes.size(); ++i) {
                     let eye = eyes.get(i);
@@ -96,8 +100,27 @@ utils.loadOpenCv(()=>{
                     cv.rectangle(dst, point1, point2, [0, 255, 0, 255]);
                 }
             }
+
+            faces.size() ?
+                (eyes.size()+last_eye_size.reduce((a,b) => a+b)) ?
+                    console.log("Eyes are open") 
+                    :
+                    console.log("Eyes are closed") 
+                :
+                console.log("No face detected")
+
+            last_eye_size = [last_eye_size[0],eyes.size()];
+            for(let i =0; i < filter_length;i++){
+
+                last_eye_size[i] = ((i+1) == filter_length) ? last_eye_size[i+1] : eyes.size();
+            }
+
             cv.rectangle(dst,window.Origin,window.Point2, [0, 0, 255, 255]);
-            cv.imshow('p_window', windowImage)
+            let _windowImage = new cv.Mat();
+            let W_size = new cv.Size(80,80);
+            cv.resize(windowImage, _windowImage, W_size)
+
+            cv.imshow('p_window', _windowImage)
             cv.imshow('canvasOutput', dst);
             // schedule the next one.
             let delay = 1000/FPS - (Date.now() - begin);
