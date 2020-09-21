@@ -1,7 +1,12 @@
 # Eye-Blink-Detection
 Javascript project to detect eye blink from video feed.
 
-In this branch I tried to implement machine learning(haarcascade in opencv.js). This was not feasible as mobile devices struggled to handle that much to processing. Not able to get enough FPS on lower end devices defeats the actual goal of this project.
+# Current approch
+1. Create a window on the video feed(much smaller than the actual frame size).
+2. Look for face and eye on the window.
+
+Result comparison:
 
 
-I'll come back to this branch with some small CNNs and tfjs.
+* Face is detected but eye is not -> eyes closed
+* Face and eye both are detected -> eyes open
